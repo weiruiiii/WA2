@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,6 +9,65 @@ import numpy as np
 import altair as alt # Import altair for interactive charts
 
 st.set_page_config(page_title="Wealth Advisor Dashboard", layout="wide")
+
+# Add custom CSS for better font clarity
+st.markdown("""
+<style>
+    /* Improve font rendering and clarity */
+    html, body, [class*="css"] {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    
+    /* Improve table readability */
+    .dataframe {
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .dataframe th {
+        font-weight: 600;
+        background-color: #f0f2f6;
+    }
+    
+    .dataframe td {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+    
+    /* Improve headers */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        color: #262730;
+    }
+    
+    /* Improve sidebar */
+    .css-1d391kg, .css-1lcbmhc {
+        font-size: 14px;
+    }
+    
+    /* Improve select boxes and inputs */
+    .stSelectbox, .stTextInput, .stNumberInput {
+        font-size: 14px;
+    }
+    
+    /* Better contrast for text */
+    .stMarkdown, .stText, .stAlert {
+        color: #262730;
+    }
+    
+    /* Improve dataframes */
+    .stDataFrame {
+        font-size: 14px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 PROCESSED_SUMMARIES_PATH = Path('/content/drive/MyDrive/Radiant/Output/processed_summaries.csv')
 
 
@@ -54,10 +112,30 @@ def boxed_names(lst):
 def format_dataframe_for_display(df, columns):
     # Apply CSS styling to prevent text wrapping and adjust column widths
     # Modified to prevent text wrapping in the 'Summary' column
-    return df[columns].style.set_properties(**{'white-space': 'nowrap'}).set_table_styles([
-        {'selector': 'th', 'props': [('min-width', '150px')]},
-        {'selector': 'td', 'props': [('min-width', '150px')]}
-    ]).set_properties(subset=['Summary'], **{'min-width': '700px', 'white-space': 'normal', 'word-break': 'break-word'}) # Re-applied normal wrapping for Summary with increased width
+    return df[columns].style.set_properties(**{
+        'white-space': 'nowrap',
+        'font-family': 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+        'font-size': '14px'
+    }).set_table_styles([
+        {'selector': 'th', 'props': [
+            ('min-width', '150px'),
+            ('font-weight', '600'),
+            ('background-color', '#f0f2f6'),
+            ('font-family', 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif')
+        ]},
+        {'selector': 'td', 'props': [
+            ('min-width', '150px'),
+            ('font-family', 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'),
+            ('font-size', '14px')
+        ]}
+    ]).set_properties(subset=['Summary'], **{
+        'min-width': '700px', 
+        'white-space': 'normal', 
+        'word-break': 'break-word',
+        'font-family': 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+        'font-size': '14px',
+        'line-height': '1.4'
+    })
 
 # Modified to format month and year
 def format_month_year(month_year_str):
@@ -127,13 +205,13 @@ average_sentiment_country_asset, average_sentiment_country_asset_sector = calcul
 
 
 # ════════════════════ Navigation ═══════════════════
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Documents Processed", "Sentiment Analysis", "Summary Example", "UOB vs Others"])
+st.sidebar.markdown("### Navigation")
+page = st.sidebar.radio("Go to", ["Documents Processed", "Sentiment Analysis", "Summary Example", "UOB vs Others"], label_visibility="collapsed")
 
 
 # ════════════════════ Documents Processed Page ═══════════════════
 if page == "Documents Processed":
-    st.title("Documents Processed")
+    st.markdown("# Documents Processed")
 
     # Calculate total DISTINCT analyst reports captured per month
     total_reports_per_month = summaries.groupby('month_year_formatted')['Filename'].nunique().reset_index()
@@ -146,7 +224,7 @@ if page == "Documents Processed":
     # Merge the counts
     monthly_summary = total_reports_per_month.merge(distinct_institutes_per_month, on='month_year_formatted')
 
-    st.subheader("Monthly Summary")
+    st.markdown("### Monthly Summary")
     # Display the monthly summary
     st.dataframe(monthly_summary[['month_year_formatted', 'Total_Analyst_Reports', 'Distinct_Financial_Institutes']], hide_index=True)
 
@@ -154,18 +232,18 @@ if page == "Documents Processed":
     file_counts = summaries.groupby(['month_year_formatted', 'Financial_Institute'])['Filename'].nunique().reset_index()
     file_counts.rename(columns={'Filename': 'Distinct_Filename_Count'}, inplace=True)
 
-    st.subheader("By Financial Institute")
+    st.markdown("### By Financial Institute")
     # Display the file counts
     st.dataframe(file_counts[['month_year_formatted','Financial_Institute', 'Distinct_Filename_Count']], hide_index=True)
 
 
 # ════════════════════ Summary Example Page ═══════════════════
 elif page == "Summary Example":
-    st.title("Asset Class Sentiment Analysis")
+    st.markdown("# Asset Class Sentiment Analysis")
 
     # Dropdown filters in the sidebar
     with st.sidebar:
-        st.header("Filters")
+        st.markdown("### Filters")
         all_institutes = summaries['Financial_Institute'].unique().tolist()
         # Changed to single select
         selected_institute = st.selectbox("Select Financial Institute", all_institutes, key='institute_filter')
@@ -208,10 +286,10 @@ elif page == "Summary Example":
         # Calculate the average of the average score per financial institution
         avg_score_per_institute = filtered_df.groupby('Financial_Institute')['Score'].mean()
         average_score = avg_score_per_institute.mean()
-        st.info(f"Average Sentiment Score: {average_score:.2f}")
+        st.info(f"**Average Sentiment Score:** {average_score:.2f}")
 
         # Display results in a table
-        st.subheader(f"Filtered Summaries for {selected_country_region} - {selected_class} ({selected_month_year_formatted})")
+        st.markdown(f"### Filtered Summaries for {selected_country_region} - {selected_class} ({selected_month_year_formatted})")
 
         # Define the desired column order
         display_columns = ['Financial_Institute', 'Countries_Region', 'Asset_Class', 'Sector', 'Summary', 'Sentiment']
@@ -225,11 +303,11 @@ elif page == "Summary Example":
 
 # ════════════════════ Sentiment Analysis Results Page ═══════════════════
 elif page == "Sentiment Analysis":
-    st.title("Sentiment Analysis Summary")
+    st.markdown("# Sentiment Analysis Summary")
 
     # Add month_year filter to the sidebar
     with st.sidebar:
-        st.header("Sentiment Analysis Filters")
+        st.markdown("### Sentiment Analysis Filters")
         all_month_years_formatted_results = summaries['month_year_formatted'].unique().tolist()
         selected_month_year_formatted_results = st.selectbox("Select Month and Year", all_month_years_formatted_results, key='month_year_results_filter_sidebar')
 
@@ -276,7 +354,7 @@ elif page == "Sentiment Analysis":
     selected_row = None
 
     with col1:
-        st.subheader("Positive (Score > 0.3)")
+        st.markdown("### Positive (Score > 0.3)")
         if not positive_sentiment.empty:
             # Display full rows and prevent sliding
             selected_row_data = st.dataframe(positive_sentiment[['Countries_Region', 'Asset_Class', 'Avg_Score']].style.format({'Avg_Score': '{:.2f}'}), hide_index=True, use_container_width=True, on_select="rerun", selection_mode="single-row")
@@ -288,7 +366,7 @@ elif page == "Sentiment Analysis":
             st.info("No data for positive sentiment from at least two institutions.")
 
     with col2:
-        st.subheader("Neutral (-0.3 <= Score <= 0.3)")
+        st.markdown("### Neutral (-0.3 <= Score <= 0.3)")
         if not neutral_sentiment.empty:
              # Display full rows and prevent sliding
             selected_row_data = st.dataframe(neutral_sentiment[['Countries_Region', 'Asset_Class', 'Avg_Score']].style.format({'Avg_Score': '{:.2f}'}), hide_index=True, use_container_width=True, on_select="rerun", selection_mode="single-row")
@@ -299,7 +377,7 @@ elif page == "Sentiment Analysis":
             st.info("No data for neutral sentiment from at least two institutions.")
 
     with col3:
-        st.subheader("Negative (Score < -0.3)")
+        st.markdown("### Negative (Score < -0.3)")
         if not negative_sentiment.empty:
              # Display full rows and prevent sliding
             selected_row_data = st.dataframe(negative_sentiment[['Countries_Region', 'Asset_Class', 'Avg_Score']].style.format({'Avg_Score': '{:.2f}'}), hide_index=True, use_container_width=True, on_select="rerun", selection_mode="single-row")
@@ -311,11 +389,11 @@ elif page == "Sentiment Analysis":
 
     # Display detailed sentiment by sector and summaries for the selected row in tabs
     if selected_row is not None:
-        st.subheader(f"Details for {selected_row['Countries_Region']} - {selected_row['Asset_Class']} ({selected_month_year_formatted_results})") # Add month_year_formatted
+        st.markdown(f"### Details for {selected_row['Countries_Region']} - {selected_row['Asset_Class']} ({selected_month_year_formatted_results})") # Add month_year_formatted
         tab1, tab2 = st.tabs(["Sector Sentiment", "Summaries"])
 
         with tab1:
-            st.subheader("Sector Sentiment (High to Low)")
+            st.markdown("### Sector Sentiment (High to Low)")
             sector_sentiment_filtered = average_sentiment_country_asset_sector_results[
                 (average_sentiment_country_asset_sector_results['Countries_Region'] == selected_row['Countries_Region']) &
                 (average_sentiment_country_asset_sector_results['Asset_Class'] == selected_row['Asset_Class'])
@@ -336,7 +414,7 @@ elif page == "Sentiment Analysis":
                 st.info("No sector-specific sentiment data available for this selection.")
 
         with tab2:
-            st.subheader("Relevant Summaries")
+            st.markdown("### Relevant Summaries")
             related_summaries = filtered_summaries_results[
                 (filtered_summaries_results['Countries_Region'] == selected_row['Countries_Region']) &
                 (filtered_summaries_results['Asset_Class'] == selected_row['Asset_Class'])
@@ -349,10 +427,10 @@ elif page == "Sentiment Analysis":
 
 # ════════════════════ UOB vs Others Sentiment Page ═══════════════════
 elif page == "UOB vs Others":
-    st.title("UOB vs Other Financial Institutions")
+    st.markdown("# UOB vs Other Financial Institutions")
 
     with st.sidebar:
-        st.header("Comparison Filters")
+        st.markdown("### Comparison Filters")
         all_month_years_formatted_comparison = summaries['month_year_formatted'].unique().tolist()
         selected_month_year_formatted_comparison = st.selectbox("Select Month and Year", all_month_years_formatted_comparison, key='month_year_comparison_filter')
 
@@ -387,7 +465,7 @@ elif page == "UOB vs Others":
         comparison_df_filtered = comparison_df.dropna(subset=['UOB', 'Others'], how='any').copy()
 
         if not comparison_df_filtered.empty:
-            st.subheader(f"{selected_month_year_formatted_comparison}")
+            st.markdown(f"### {selected_month_year_formatted_comparison}")
 
             # Function to apply highlighting
             def highlight_sentiment_difference(row):
@@ -425,7 +503,7 @@ elif page == "UOB vs Others":
             ].copy()
 
 
-            st.subheader("Similar Sentiment (Same Sign or Difference < 0.3)")
+            st.markdown("### Similar Sentiment (Same Sign or Difference < 0.3)")
             if not similar_sentiment_df.empty:
                  # Display full rows and prevent sliding
                  st.dataframe(similar_sentiment_df.style.apply(highlight_sentiment_difference, axis=1).format({
@@ -435,7 +513,7 @@ elif page == "UOB vs Others":
             else:
                 st.info("No entries with similar sentiment for the selected filters.")
 
-            st.subheader("Different Sentiments")
+            st.markdown("### Different Sentiments")
             if not others_sentiment_df.empty:
                  # Display full rows and prevent sliding
                  st.dataframe(others_sentiment_df.style.apply(highlight_sentiment_difference, axis=1).format({
@@ -450,4 +528,3 @@ elif page == "UOB vs Others":
 
     else:
         st.info("No data available for the selected filters.")
-
