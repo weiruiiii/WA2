@@ -10,7 +10,7 @@ import numpy as np
 import altair as alt # Import altair for interactive charts
 
 st.set_page_config(page_title="Wealth Advisor Dashboard", layout="wide")
-PROCESSED_SUMMARIES_PATH = Path('processed_summaries.csv')
+PROCESSED_SUMMARIES_PATH = Path('/processed_summaries.csv')
 
 
 # ────────────────────────── Helpers ──────────────────────────
