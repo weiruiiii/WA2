@@ -10,9 +10,7 @@ import numpy as np
 import altair as alt # Import altair for interactive charts
 
 st.set_page_config(page_title="Wealth Advisor Dashboard", layout="wide")
-DATA_PATH    = Path('/content/drive/MyDrive/RDT/WORKFLOW/UOB Intern/Code/Investment Decision Agent/asset_recommendations.json')
-SUMMARY_PATH = Path('/content/drive/MyDrive/RDT/WORKFLOW/UOB Intern/Code/Summarization_RAG/Complete Workflow/all_articles.jsonl')
-PROCESSED_SUMMARIES_PATH = Path('/content/drive/MyDrive/Radiant/Output/processed_summaries.csv')
+PROCESSED_SUMMARIES_PATH = Path('processed_summaries.csv')
 
 
 # ────────────────────────── Helpers ──────────────────────────
