@@ -7,10 +7,12 @@ import json, re
 from datetime import datetime, timedelta
 from pathlib import Path
 import numpy as np
-import altair as alt # Import altair for interactive charts
+import altair as alt  # Import altair for interactive charts
 
 st.set_page_config(page_title="Wealth Advisor Dashboard", layout="wide")
-PROCESSED_SUMMARIES_PATH = Path('/processed_summaries.csv')
+
+# Resolve the CSV file relative to the current script's directory
+PROCESSED_SUMMARIES_PATH = Path(__file__).parent / "processed_summaries.csv"
 
 
 # ────────────────────────── Helpers ──────────────────────────
